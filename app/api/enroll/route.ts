@@ -6,10 +6,13 @@ export async function POST(req: Request) {
   if (!courseId)
     return Response.json({ message: 'Course id is required' }, { status: 400 })
   const { userId } = auth()
-  const purchase = await prisma.purchase.findFirst({
-    where: { userId: userId!, courseId },
+  const purchases = await prisma.purchase.findMany({
+    where: { userId: userId! },
   })
-  if (purchase)
+  const purchase = purchases.filter(purchase =>
+    purchase.courseId === courseId ? true : false
+  )
+  if (purchase.length !== 0)
     return Response.json(
       { message: 'Already enrolled this course' },
       { status: 400 }

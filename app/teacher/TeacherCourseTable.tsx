@@ -136,7 +136,7 @@ export const columns: ColumnDef<Course>[] = [
     cell: ({ row }) => (
       <div
         className={`uppercase ${
-          row.getValue('status') === 'draft' ? 'text-red-400' : 'text-slate-400'
+          row.getValue('status') === 'draft' ? 'text-red-400' : 'text-cyan-700'
         }`}>
         {row.getValue('status')}
       </div>
@@ -176,7 +176,7 @@ export const columns: ColumnDef<Course>[] = [
             <DropdownMenuItem className='cursor-pointer'>
               <Link
                 className='w-full flex gap-2 items-center'
-                href={`/course/${course.id}/edit`}>
+                href={`/course/edit/${course.id}`}>
                 Edit <PencilIcon className='ml-2 w-4' />
               </Link>
             </DropdownMenuItem>

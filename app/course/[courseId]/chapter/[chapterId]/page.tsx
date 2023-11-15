@@ -1,26 +1,43 @@
 import VideoPlayer from '@/components/VideoPlayer'
-import { buttonVariants } from '@/components/ui/button'
 import prisma from '@/db'
 import { auth } from '@clerk/nextjs'
-import { Lock, UnlockIcon } from 'lucide-react'
-import Link from 'next/link'
+import ChapterViewSideBar from '@/components/ChapterViewSideBar'
 
 export default async function CoursePage({
   params: { chapterId, courseId },
 }: {
   params: { courseId: string; chapterId: string }
 }) {
+  const { userId } = auth()
   const chapter = await prisma.chapter.findFirst({
     where: { id: chapterId },
+    include: {
+      chapterCompletes: {
+        where: { userId: userId! },
+      },
+    },
   })
+
   const course = await prisma.course.findFirst({
     where: { id: courseId },
-    include: { chapter: true, customers: true },
+    include: {
+      chapters: {
+        include: {
+          chapterCompletes: {
+            where: { userId: userId! },
+          },
+        },
+        orderBy: {
+          chapterPosition: 'asc',
+        },
+      },
+      purchases: {
+        where: { userId: userId! },
+      },
+    },
   })
-  const { userId } = auth()
-  const customer = course?.customers.filter(
-    customer => customer.userId === userId
-  )
+
+  const purchase = course?.purchases[0]
   if (!chapter)
     return (
       <div className='container mt-8'>
@@ -30,24 +47,12 @@ export default async function CoursePage({
 
   return (
     <main className='flex flex-row'>
-      <div className='h-screen top-0 left-0 sticky w-[250px] bg-muted bg-opacity-0 shadow-md rounded-r-md flex gap-4'>
-        {course?.chapter.map(mapChapter => (
-          <Link
-            href={`/course/${mapChapter.courseId}/chapter/${mapChapter.id}`}
-            className={`${buttonVariants({
-              variant: 'ghost',
-            })} my-4 ml-2 text-muted-foreground`}
-            key={mapChapter.id}>
-            {mapChapter?.title}{' '}
-            {!mapChapter?.accessWithoutPurchase ? (
-              <Lock className='ml-2 text-sm w-5' />
-            ) : (
-              <UnlockIcon className='ml-2 text-sm w-5' />
-            )}
-          </Link>
-        ))}
-      </div>
-      {customer!.length === 0 ? (
+      <ChapterViewSideBar
+        purchase={purchase!}
+        chapterId={chapterId}
+        course={course!}
+      />
+      {!purchase && !chapter.accessWithoutPurchase ? (
         <div className='container mt-8'>
           <h1 className='text-2xl font-bold'>
             Please purchase this course to watch this chapter

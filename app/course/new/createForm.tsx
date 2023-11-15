@@ -21,6 +21,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
+import { revalidatePath } from 'next/cache'
 
 const formSchema = z.object({
   name: z.string().min(2).max(50),
@@ -39,14 +40,51 @@ type Chapter = {
   access: any
 }
 
+export async function handleUploadChapterVideo({
+  form,
+  setChapterVideoUploading,
+  setChapters,
+}: {
+  form: any
+  setChapterVideoUploading: any
+  setChapters: any
+}) {
+  setChapterVideoUploading(true)
+  let { chapterName, chapterVideo, chapterAccess } = form.getValues()
+  const chapterVideoFormData = new FormData()
+  chapterVideoFormData.append('file', chapterVideo)
+  chapterVideoFormData.append('upload_preset', 'coursex_uploads')
+  const { data: chapterVideoData } = await axios.post(
+    'https://api.cloudinary.com/v1_1/manethye/video/upload',
+    chapterVideoFormData
+  )
+  setChapterVideoUploading(false)
+  if (!chapterVideoData)
+    return toast.error('Something went wrong while uploading the video')
+
+  setChapters((prev: Chapter[]) => [
+    {
+      chapterName: chapterName!,
+      chapterVideo: chapterVideoData.secure_url!,
+      access: chapterAccess,
+      chapterPosition: prev.length + 1,
+    },
+    ...prev,
+  ])
+
+  toast.success(`Chapter ${chapterName} created successfully.`)
+  form.setValue('chapterName', '')
+  form.setValue('chapterVideo', null)
+  form.setValue('chapterAccess', false)
+}
+
 export default function CreateForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   })
 
   const [loading, setLoading] = useState(false)
-  const [chapterVideoUploadLoading, setChapterVideoUploadLoading] =
-    useState(false)
+  const [chapterVideoUploadLoading, setChapterVideoUploading] = useState(false)
   const [chapters, setChapters] = useState<Chapter[]>([])
   const router = useRouter()
 
@@ -65,7 +103,6 @@ export default function CreateForm() {
       'https://api.cloudinary.com/v1_1/manethye/image/upload',
       cloudinaryFormData
     )
-    console.log(imageData)
 
     const newCourse = await axios.post('/api/course/new', {
       name: name,
@@ -75,45 +112,14 @@ export default function CreateForm() {
       chapters: chapters,
     })
     setLoading(false)
+    form.reset()
     if (newCourse.status === 200) {
       // Success
-      form.reset()
       toast.success('Course created successfully!')
       router.push('/teacher')
     } else {
       toast.error('Something went wrong!')
     }
-  }
-
-  async function handleUploadChapterVideo() {
-    setChapterVideoUploadLoading(true)
-    let { chapterName, chapterVideo, chapterAccess } = form.getValues()
-    const chapterVideoFormData = new FormData()
-    chapterVideoFormData.append('file', chapterVideo)
-    chapterVideoFormData.append('upload_preset', 'coursex_uploads')
-    const { data: chapterVideoData } = await axios.post(
-      'https://api.cloudinary.com/v1_1/manethye/video/upload',
-      chapterVideoFormData
-    )
-    setChapterVideoUploadLoading(false)
-    if (!chapterVideoData)
-      return toast.error('Something went wrong while uploading the video')
-
-    setChapters(prev => [
-      {
-        chapterName: chapterName!,
-        chapterVideo: chapterVideoData.secure_url!,
-        access: chapterAccess,
-        chapterPosition: prev.length + 1,
-      },
-      ...prev,
-    ])
-
-    toast.success(`Chapter ${chapterName} created successfully.`)
-    form.setValue('chapterName', '')
-    form.setValue('chapterVideo', '')
-    form.setValue('chapterAccess', false)
-    form.reset({ chapterVideo: null, chapterAccess: false, chapterName: '' })
   }
 
   return (
@@ -188,7 +194,7 @@ export default function CreateForm() {
                   <FormLabel>Cover Image</FormLabel>
                   <FormControl>
                     <Input
-                      onChange={e => {
+                      onChange={(e: any) => {
                         field.onChange(e?.target.files[0]!)
                       }}
                       id='image'
@@ -230,9 +236,7 @@ export default function CreateForm() {
                   <FormControl>
                     <Input
                       type='file'
-                      onChange={(e: ChangeEvent) =>
-                        field.onChange(e.target.files[0])
-                      }
+                      onChange={(e: any) => field.onChange(e.target.files[0])}
                       ref={field.ref}
                       name={field.name}
                       onBlur={field.onBlur}
@@ -262,7 +266,13 @@ export default function CreateForm() {
               )}
             />
             <Button
-              onClick={handleUploadChapterVideo}
+              onClick={() =>
+                handleUploadChapterVideo({
+                  form,
+                  setChapters,
+                  setChapterVideoUploading,
+                })
+              }
               disabled={chapterVideoUploadLoading}
               variant='secondary'>
               {chapterVideoUploadLoading && (
@@ -276,7 +286,7 @@ export default function CreateForm() {
               <ul>
                 {chapters.map(chapter => (
                   <li
-                    className='bg-muted p-4 text-sm font-mono shadow-md rounded-md'
+                    className='bg-muted p-4 shadow-md my-2 rounded-md border border-slate-200'
                     key={chapter.chapterPosition}>
                     {chapter.chapterName}
                   </li>

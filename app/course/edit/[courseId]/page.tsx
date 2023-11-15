@@ -1,19 +1,25 @@
-import { AspectRatio } from '@/components/ui/aspect-ratio'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import prisma from '@/db'
 import { auth } from '@clerk/nextjs'
-import Image from 'next/image'
-import React from 'react'
+import EditForm from './editForm'
 
 export default async function CourseEditPage({
   params,
 }: {
-  params: { id: string }
+  params: { courseId: string }
 }) {
   const { userId } = auth()
 
-  const course = await prisma.course.findFirst({ where: { id: params.id } })
+  const course = await prisma.course.findFirst({
+    where: { id: params.courseId },
+    include: {
+      chapters: {
+        orderBy: {
+          chapterPosition: 'asc',
+        },
+      },
+    },
+  })
+
   if (course?.author !== userId)
     return (
       <div className='container'>
@@ -29,5 +35,9 @@ export default async function CourseEditPage({
       </div>
     )
 
-  return <div className='mt-10 container'>Hello Edit</div>
+  return (
+    <div className='mt-10 container'>
+      <EditForm course={course} />
+    </div>
+  )
 }

@@ -1,6 +1,7 @@
 import prisma from '@/db'
 import { auth } from '@clerk/nextjs'
 import { create } from 'domain'
+import { revalidatePath } from 'next/cache'
 
 export async function POST(request: Request) {
   const { name, description, price, secure_url, chapters } =
@@ -47,5 +48,6 @@ export async function POST(request: Request) {
       },
     },
   })
+  revalidatePath('/teacher')
   return Response.json(newCourse)
 }

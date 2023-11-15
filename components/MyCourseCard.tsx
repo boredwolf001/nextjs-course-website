@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import {
   Card,
   CardDescription,
@@ -11,11 +10,9 @@ import {
 import { AspectRatio } from './ui/aspect-ratio'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Button, buttonVariants } from './ui/button'
+import { buttonVariants } from './ui/button'
 import { Chapter, Course as PrismaCourse, Purchase } from '@prisma/client'
-import { ShoppingCartIcon, Tv2 } from 'lucide-react'
-import toast from 'react-hot-toast'
-import axios from 'axios'
+import { Tv2 } from 'lucide-react'
 import { Progress } from './ui/progress'
 
 interface Course extends PrismaCourse {
@@ -29,30 +26,6 @@ export default function CourseCard({
   course: Course
   purchases: Purchase[]
 }) {
-  const [isEnrolling, setIsEnrolling] = useState(false)
-  const [enrolled, setEnrolled] = useState(() => {
-    const purchase = purchases.filter(purchase =>
-      purchase.courseId === course.id ? true : false
-    )
-    if (purchase.length === 0) {
-      return false
-    } else {
-      return true
-    }
-  })
-
-  async function enrollUser() {
-    const purchase = await axios.post('/api/enroll', {
-      courseId: course.id,
-    })
-    if (purchase.status !== 201) {
-      toast.error('Error occured while enrolling the course')
-    } else {
-      toast.success('You can now access the full course')
-      setEnrolled(true)
-    }
-  }
-
   function getProgressValue() {
     let chapterCompleteCount = 0
     let chapterCount = 0
@@ -93,28 +66,12 @@ export default function CourseCard({
       <CardFooter className='flex gap-2 justify-between '>
         <p className='text-lg block'>{course.purchasePrice}</p>
 
-        {!enrolled && (
-          <Button
-            className='uppercase'
-            variant='secondary'
-            disabled={isEnrolling}
-            onClick={() => {
-              setIsEnrolling(true)
-              enrollUser()
-              setIsEnrolling(false)
-            }}>
-            <ShoppingCartIcon className='mr-2' />
-            {isEnrolling ? 'Enrolling' : 'Enroll'}
-          </Button>
-        )}
-        {enrolled && (
-          <Link
-            href={`/course/${course.id}/chapter/${course.chapters[0].id}`}
-            className={`uppercase ${buttonVariants({ variant: 'default' })}`}>
-            <Tv2 className='mr-2' />
-            Watch course
-          </Link>
-        )}
+        <Link
+          href={`/course/${course.id}/chapter/${course.chapters[0].id}`}
+          className={`uppercase ${buttonVariants({ variant: 'default' })}`}>
+          <Tv2 className='mr-2' />
+          Watch course
+        </Link>
       </CardFooter>
     </Card>
   )

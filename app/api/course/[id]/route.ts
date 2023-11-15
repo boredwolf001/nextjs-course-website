@@ -1,5 +1,6 @@
 import prisma from '@/db'
 import { auth } from '@clerk/nextjs'
+import { revalidatePath } from 'next/cache'
 
 export async function DELETE(req: Request, route: { params: { id: string } }) {
   const { userId } = auth()
@@ -12,7 +13,7 @@ export async function DELETE(req: Request, route: { params: { id: string } }) {
     })
 
   await prisma.course.delete({ where: { id } })
-
+  revalidatePath('/teacher')
   return Response.json({ status: 201 })
 }
 
@@ -30,6 +31,15 @@ export async function PATCH(req: Request, route: { params: { id: string } }) {
     return Response.json('Not authenticated to edit this course', {
       status: 401,
     })
+
+  let USDollar = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  })
+
+  if (reqBody.purchasePrice) {
+    reqBody.purchasePrice = USDollar.format(+reqBody.purchasePrice)
+  }
 
   const updatedCourse = await prisma.course.update({
     where: { id: id! },

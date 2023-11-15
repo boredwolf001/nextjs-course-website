@@ -32,6 +32,7 @@ model Chapter {
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId String
   chapterPosition Int
+  chapterCompletes ChapterComplete[]
 }
 
 model Purchase {
@@ -39,4 +40,13 @@ model Purchase {
   userId String
   courseId String
   course Course @relation(fields:[courseId], references:[id], onDelete:Cascade)
+}
+
+model ChapterComplete {
+  id String @id @default(uuid())
+  chapter Chapter @relation(fields: [chapterId], references: [id])
+  chapterId String
+  userId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

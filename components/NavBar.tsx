@@ -13,9 +13,11 @@ export default function NavBar() {
 
   return (
     <nav className='container flex justify-between items-center bg-accent py-4'>
-      <h1 className='scroll-m-20 text-2xl text-primary font-black tracking-tight lg:text-3xl'>
-        CourseX
-      </h1>
+      <Link href='/'>
+        <h1 className='scroll-m-20 text-2xl text-primary font-black tracking-tight lg:text-3xl'>
+          CourseX
+        </h1>
+      </Link>
 
       <div className='flex flex-row gap-4 justify-center items-center'>
         {pathname === '/teacher' && (
