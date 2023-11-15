@@ -47,7 +47,7 @@ export const editFormSchema = z.object({
   chapterAccess: z.boolean().optional(),
 })
 
-export default function EditForm({ course }: { course: Course }) {
+export default function EditForm({ course }: { course: CourseWithChapters }) {
   const form = useForm<z.infer<typeof editFormSchema>>({
     resolver: zodResolver(editFormSchema),
     defaultValues: {
