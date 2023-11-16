@@ -10,7 +10,6 @@ import {
   FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form'
 import axios from 'axios'
@@ -19,17 +18,7 @@ import { Button } from '@/components/ui/button'
 import { useState } from 'react'
 import Image from 'next/image'
 import { AspectRatio } from '@radix-ui/react-aspect-ratio'
-import {
-  CircleDollarSign,
-  EditIcon,
-  ImageIcon,
-  Loader2,
-  PlusCircle,
-  VideoIcon,
-} from 'lucide-react'
-import ChapterList from '@/components/ChapterList'
-import { Checkbox } from '@/components/ui/checkbox'
-import { handleUploadChapterVideo } from '../../new/createForm'
+import { CircleDollarSign, EditIcon, ImageIcon } from 'lucide-react'
 import EditFormField from '@/components/EditFormField'
 import EditFormChapterSection from '@/components/EditFormChapterSection'
 
@@ -73,7 +62,7 @@ export default function EditForm({ course }: { course: CourseWithChapters }) {
     return imageData
   }
 
-  async function editField(editingField: string, value: string) {
+  async function editField(editingField: any, value: string) {
     let USDollar = new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -88,6 +77,7 @@ export default function EditForm({ course }: { course: CourseWithChapters }) {
     }
 
     // if value is the same as a database field
+    // @eslint-disable-next-line
     if (value == course[editingField]) {
       setIsUpdating(false)
       return toast.error('Nothing to be edited')
