@@ -16,6 +16,9 @@ export default async function CourseEditPage({
         orderBy: {
           chapterPosition: 'asc',
         },
+        include: {
+          chapterCompletes: true,
+        },
       },
     },
   })
