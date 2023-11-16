@@ -65,7 +65,7 @@ export default function CourseCard({
   }
 
   return (
-    <Card className='w-[400px] ' key={course.id}>
+    <Card className='w-[400px] h-[475px] p-4 shadow-md' key={course.id}>
       <CardHeader>
         <AspectRatio ratio={16 / 9}>
           <Link href={`/course/${course.id}/chapter/${course.chapters[0].id}`}>
@@ -83,11 +83,18 @@ export default function CourseCard({
           {course.description}
         </CardDescription>
 
-        <Progress
-          indColor='cyan-500'
-          className='h-[10px]'
-          value={getProgressValue()}
-        />
+        {enrolled && (
+          <div>
+            <Progress
+              indColor='cyan-500'
+              className='h-[10px] mt-4'
+              value={getProgressValue()}
+            />
+            <small className='text-sm text-muted-foreground'>
+              {getProgressValue()}%
+            </small>
+          </div>
+        )}
       </CardHeader>
 
       <CardFooter className='flex gap-2 justify-between '>

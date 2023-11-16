@@ -11,7 +11,7 @@ export default function NavBar() {
   const pathname = usePathname()
 
   return (
-    <nav className='container flex justify-between items-center bg-accent py-4'>
+    <nav className='container flex justify-between items-center bg-muted py-4'>
       <Link href='/'>
         <h1 className='scroll-m-20 text-2xl text-primary font-black tracking-tight lg:text-3xl'>
           CourseX

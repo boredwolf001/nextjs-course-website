@@ -2,7 +2,7 @@
 
 import { Input } from '@/components/ui/input'
 import axios from 'axios'
-import { useState, ChangeEvent } from 'react'
+import { useState, ChangeEvent, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import toast from 'react-hot-toast'
@@ -40,44 +40,6 @@ type Chapter = {
   access: any
 }
 
-export async function handleUploadChapterVideo({
-  form,
-  setChapterVideoUploading,
-  setChapters,
-}: {
-  form: any
-  setChapterVideoUploading: any
-  setChapters: any
-}) {
-  setChapterVideoUploading(true)
-  let { chapterName, chapterVideo, chapterAccess } = form.getValues()
-  const chapterVideoFormData = new FormData()
-  chapterVideoFormData.append('file', chapterVideo)
-  chapterVideoFormData.append('upload_preset', 'coursex_uploads')
-  const { data: chapterVideoData } = await axios.post(
-    'https://api.cloudinary.com/v1_1/manethye/video/upload',
-    chapterVideoFormData
-  )
-  setChapterVideoUploading(false)
-  if (!chapterVideoData)
-    return toast.error('Something went wrong while uploading the video')
-
-  setChapters((prev: Chapter[]) => [
-    {
-      chapterName: chapterName!,
-      chapterVideo: chapterVideoData.secure_url!,
-      access: chapterAccess,
-      chapterPosition: prev.length + 1,
-    },
-    ...prev,
-  ])
-
-  toast.success(`Chapter ${chapterName} created successfully.`)
-  form.setValue('chapterName', '')
-  form.setValue('chapterVideo', null)
-  form.setValue('chapterAccess', false)
-}
-
 export default function CreateForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -87,6 +49,39 @@ export default function CreateForm() {
   const [chapterVideoUploadLoading, setChapterVideoUploading] = useState(false)
   const [chapters, setChapters] = useState<Chapter[]>([])
   const router = useRouter()
+  const videoRef = useRef<HTMLInputElement>(null)
+
+  async function handleUploadChapterVideo() {
+    setChapterVideoUploading(true)
+    let { chapterName, chapterVideo, chapterAccess } = form.getValues()
+    const chapterVideoFormData = new FormData()
+    chapterVideoFormData.append('file', chapterVideo)
+    chapterVideoFormData.append('upload_preset', 'coursex_uploads')
+    const { data: chapterVideoData } = await axios.post(
+      'https://api.cloudinary.com/v1_1/manethye/video/upload',
+      chapterVideoFormData
+    )
+    setChapterVideoUploading(false)
+    if (!chapterVideoData)
+      return toast.error('Something went wrong while uploading the video')
+
+    setChapters((prev: Chapter[]) => [
+      ...prev,
+      {
+        chapterName: chapterName!,
+        chapterVideo: chapterVideoData.secure_url!,
+        access: chapterAccess,
+        chapterPosition: prev.length + 1,
+      },
+    ])
+
+    toast.success(`Chapter ${chapterName} created successfully.`)
+    form.setValue('chapterName', '')
+    form.setValue('chapterAccess', false)
+    if (videoRef.current && videoRef?.current?.files?.length !== 0) {
+      videoRef.current.files = null
+    }
+  }
 
   async function createCourse({
     name,
@@ -236,8 +231,8 @@ export default function CreateForm() {
                   <FormControl>
                     <Input
                       type='file'
+                      ref={videoRef}
                       onChange={(e: any) => field.onChange(e.target.files[0])}
-                      ref={field.ref}
                       name={field.name}
                       onBlur={field.onBlur}
                       id='chapter-video'
@@ -266,13 +261,7 @@ export default function CreateForm() {
               )}
             />
             <Button
-              onClick={() =>
-                handleUploadChapterVideo({
-                  form,
-                  setChapters,
-                  setChapterVideoUploading,
-                })
-              }
+              onClick={handleUploadChapterVideo}
               disabled={chapterVideoUploadLoading}
               variant='secondary'>
               {chapterVideoUploadLoading && (
