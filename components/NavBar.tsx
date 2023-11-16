@@ -5,7 +5,6 @@ import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 
 import { buttonVariants } from '@/components/ui/button'
-import { ModeToggle } from './ModeToggle'
 import { PlusCircleIcon } from 'lucide-react'
 
 export default function NavBar() {
@@ -35,7 +34,6 @@ export default function NavBar() {
           {pathname === '/teacher' ? 'Student Mode' : 'Teacher Mode'}
         </Link>
         <UserButton afterSignOutUrl='/sign-in' />
-        <ModeToggle />
       </div>
     </nav>
   )
