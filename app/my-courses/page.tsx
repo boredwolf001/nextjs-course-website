@@ -29,7 +29,11 @@ export default async function Home() {
       <CoursesPageSideBar />
       <div className='container flex flex-wrap gap-8 justify-even align-center mt-8 '>
         {purchases.map(purchase => (
-          <MyCourseCard purchases={purchases} course={purchase.course} />
+          <MyCourseCard
+            key={purchase.id}
+            purchases={purchases}
+            course={purchase.course}
+          />
         ))}
       </div>
     </main>
