@@ -17,16 +17,16 @@ import { ShoppingCartIcon, Tv2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { Progress } from './ui/progress'
-
-interface Course extends PrismaCourse {
-  chapters: Chapter[]
-}
+import {
+  ChapterWithChapterCompletes,
+  CourseWithChapters,
+} from '@/app/course/edit/[courseId]/editForm'
 
 export default function CourseCard({
   course,
   purchases,
 }: {
-  course: Course
+  course: CourseWithChapters
   purchases: Purchase[]
 }) {
   const [isEnrolling, setIsEnrolling] = useState(false)

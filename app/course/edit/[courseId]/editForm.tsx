@@ -1,7 +1,11 @@
 'use client'
 import { Input } from '@/components/ui/input'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Chapter, Course as PrismaCourse } from '@prisma/client'
+import {
+  Chapter,
+  ChapterComplete,
+  Course as PrismaCourse,
+} from '@prisma/client'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import {
@@ -22,8 +26,12 @@ import { CircleDollarSign, EditIcon, ImageIcon } from 'lucide-react'
 import EditFormField from '@/components/EditFormField'
 import EditFormChapterSection from '@/components/EditFormChapterSection'
 
+export interface ChapterWithChapterCompletes extends Chapter {
+  chapterCompletes: ChapterComplete[]
+}
+
 export interface CourseWithChapters extends PrismaCourse {
-  chapters: Chapter[]
+  chapters: ChapterWithChapterCompletes[]
 }
 
 export const editFormSchema = z.object({
@@ -78,7 +86,7 @@ export default function EditForm({ course }: { course: CourseWithChapters }) {
 
     // if value is the same as a database field
     // @eslint-disable-next-line
-    if (value == course[editingField]) {
+    if (value == course[editingField as keyof CourseWithChapters]) {
       setIsUpdating(false)
       return toast.error('Nothing to be edited')
     }

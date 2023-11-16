@@ -11,19 +11,16 @@ import { AspectRatio } from './ui/aspect-ratio'
 import Link from 'next/link'
 import Image from 'next/image'
 import { buttonVariants } from './ui/button'
-import { Chapter, Course as PrismaCourse, Purchase } from '@prisma/client'
+import { Purchase } from '@prisma/client'
 import { Tv2 } from 'lucide-react'
 import { Progress } from './ui/progress'
-
-interface Course extends PrismaCourse {
-  chapters: Chapter[]
-}
+import { CourseWithChapters } from '@/app/course/edit/[courseId]/editForm'
 
 export default function CourseCard({
   course,
   purchases,
 }: {
-  course: Course
+  course: CourseWithChapters
   purchases: Purchase[]
 }) {
   function getProgressValue() {

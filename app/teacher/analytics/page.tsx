@@ -1,13 +1,17 @@
 import React from 'react'
 import { auth } from '@clerk/nextjs'
 import prisma from '@/db'
-import { Course } from '@prisma/client'
+import { Course, Purchase } from '@prisma/client'
 import { Overview } from './BarChart'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+interface CourseWithPurchases extends Course {
+  purchases: Purchase[]
+}
+
 export default async function Analytics() {
   const { userId }: { userId: string | null } = auth()
-  const courses: Course[] = await prisma.course.findMany({
+  const courses: CourseWithPurchases[] = await prisma.course.findMany({
     where: { author: userId! },
     orderBy: { createdAt: 'desc' },
     include: {

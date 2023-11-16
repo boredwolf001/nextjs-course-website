@@ -1,14 +1,6 @@
 'use client'
 import Link from 'next/link'
-import {
-  BarChart,
-  BarChart4,
-  BarChartBig,
-  FolderSearch,
-  Globe,
-  LayoutDashboard,
-  MonitorDot,
-} from 'lucide-react'
+import { BarChart4, LayoutDashboard } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
 export default function TeacherPageSideBar() {

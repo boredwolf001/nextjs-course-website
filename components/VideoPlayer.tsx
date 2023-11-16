@@ -1,13 +1,12 @@
 'use client'
 
 import { Chapter as PrismaChapter, ChapterComplete } from '@prisma/client'
-import React, { useEffect, useRef, useState } from 'react'
-import { BigPlayButton, ControlBar, Player } from 'video-react'
+import { useState } from 'react'
+import { ControlBar, Player } from 'video-react'
 import 'video-react/dist/video-react.css'
 import { Button } from './ui/button'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import ReactHlsPlayer from 'react-hls-player'
 
 interface Chapter extends PrismaChapter {
   chapterCompletes: ChapterComplete[]
